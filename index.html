@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SMART CONTROL CAR - Câmara Municipal de Belford Roxo</title>
+  <style>
+    :root {
+      --primary: #0052a5;
+      --primary-dark: #003a77;
+      --accent: #22c55e;
+      --accent-dark: #16a34a;
+      --danger: #ef4444;
+      --danger-dark: #dc2626;
+      --bg: #f3f4f6;
+      --surface: #ffffff;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --border: #e5e7eb;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --radius: 12px;
+    }
+
+    .dark {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      max-width: 600px;
+      margin: 0 auto;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    /* Header e Logos Lado a Lado */
+    header {
+      background-color: var(--surface);
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow);
+      gap: 10px;
+    }
+
+    .header-top {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .main-brand-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--primary);
+      letter-spacing: 1px;
+      text-align: center;
+      flex: 1;
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+    }
+
+    .logos-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      width: 100%;
+      border-top: 1px solid var(--border);
+      padding-top: 8px;
+    }
+
+    .brand-logo {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+
+    .divider-vertical {
+      width: 1px;
+      height: 28px;
+      background-color: var(--border);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      padding: 16px;
+      padding-bottom: 90px;
+    }
+
+    /* Dashboard Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background-color: var(--surface);
+      padding: 12px 8px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-card.active .stat-value {
+      color: var(--accent-dark);
+    }
+
+    .stat-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    /* Card Component */
+    .card {
+      background-color: var(--surface);
+      border-radius: var(--radius);
+      padding: 16px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--primary);
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background-color: var(--bg);
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+    }
+
+    .placa-input {
+      text-transform: uppercase;
+      font-family: monospace;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--accent-dark);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      width: auto;
+    }
+
+    .btn-danger:hover {
+      background-color: var(--danger-dark);
+    }
+
+    .btn-secondary {
+      background-color: var(--primary);
+      color: white;
+      margin-top: 10px;
+    }
+
+    /* Vehicle List Item */
+    .vehicle-item {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .vehicle-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .plate-badge {
+      background-color: #000;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-weight: bold;
+      font-size: 0.95rem;
+      border: 2px solid #3b82f6;
+      letter-spacing: 1px;
+    }
+
+    .category-badge {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+      background-color: rgba(0, 82, 165, 0.1);
+      color: var(--primary);
+    }
+
+    .vehicle-info {
+      font-size: 0.95rem;
+    }
+
+    .vehicle-name {
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .vehicle-time {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .vehicle-obs {
+      font-size: 0.85rem;
+      background: var(--bg);
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    .vehicle-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+
+    .timer-badge {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent-dark);
+    }
+
+    /* Bottom Navigation */
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 600px;
+      background-color: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+      z-index: 50;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      width: 25%;
+    }
+
+    .nav-btn.active {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .nav-icon {
+      font-size: 1.2rem;
+    }
+
+    /* Views toggle */
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+    }
+
+    .search-box {
+      margin-bottom: 14px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 10px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <h1 class="main-brand-title">🚘 SMART CONTROL CAR</h1>
+      <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()">🌙</button>
+    </div>
+    <div class="logos-row">
+      <!-- Nova Logo Exclusiva Smart Control Car -->
+           <!-- Logo da Câmara Municipal -->
+      <img src="logo.png" alt="Câmara Municipal de Belford Roxo" class="brand-logo" title="Câmara Municipal de Belford Roxo" id="mainLogo">
+    </div>
+  </header>
+
+  <main>
+    <!-- Dashboard Stats -->
+    <div class="stats-grid">
+      <div class="stat-card active">
+        <div class="stat-value" id="statActive">0</div>
+        <div class="stat-label">No Pátio</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statToday">0</div>
+        <div class="stat-label">Entradas Hoje</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statExits">0</div>
+        <div class="stat-label">Saídas Hoje</div>
+      </div>
+    </div>
+
+    <!-- VIEW 1: ENTRADA / REGISTRO -->
+    <section id="viewEntry" class="view-section active">
+      <div class="card">
+        <div class="card-title">📌 Novo Registro de Entrada</div>
+        <form id="entryForm" onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label for="inputPlate">Placa do Veículo *</label>
+            <input type="text" id="inputPlate" class="placa-input" required maxlength="8" list="plateSuggestions" placeholder="ABC-1234 ou ABC1D23" autocomplete="off">
+            <datalist id="plateSuggestions"></datalist>
+          </div>
+
+          <div class="form-group">
+            <label for="inputName">Nome Completo *</label>
+            <input type="text" id="inputName" required list="nameSuggestions" placeholder="Ex: João da Silva" autocomplete="off">
+            <datalist id="nameSuggestions"></datalist>
+          </div>
+
+          <div class="form-group">
+            <label for="inputCategory">Categoria *</label>
+            <select id="inputCategory" required>
+              <option value="Vereador">Vereador</option>
+              <option value="Servidor" selected>Servidor</option>
+              <option value="Visitante">Visitante</option>
+              <option value="Prestador de Serviço">Prestador de Serviço</option>
+              <option value="Imprensa">Imprensa</option>
+              <option value="Oficial">Oficial / Frota</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="inputObs">Observações (Opcional)</label>
+            <textarea id="inputObs" rows="2" placeholder="Ex: Destino: Gabinete 05 / Autorizado por..."></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            🚗 Registrar Entrada
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- VIEW 2: CADASTRO PRÉVIO / BASE AUTORIZADA -->
+    <section id="viewPreRegister" class="view-section">
+      <div class="card">
+        <div class="card-title">📖 Novo Cadastro Prévio</div>
+        <form id="preRegisterForm" onsubmit="handlePreRegister(event)">
+          <div class="form-group">
+            <label for="prePlate">Placa do Veículo *</label>
+            <input type="text" id="prePlate" class="placa-input" required maxlength="8" placeholder="ABC-1234">
+          </div>
+          <div class="form-group">
+            <label for="preName">Nome Completo *</label>
+            <input type="text" id="preName" required placeholder="Ex: Deputado/Vereador/Servidor">
+          </div>
+          <div class="form-group">
+            <label for="preCategory">Categoria *</label>
+            <select id="preCategory" required>
+              <option value="Vereador">Vereador</option>
+              <option value="Servidor" selected>Servidor</option>
+              <option value="Visitante">Visitante</option>
+              <option value="Prestador de Serviço">Prestador de Serviço</option>
+              <option value="Imprensa">Imprensa</option>
+              <option value="Oficial">Oficial / Frota</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">💾 Salvar na Base Prévia</button>
+        </form>
+      </div>
+
+      <div class="card-title" style="margin-bottom: 10px;">📋 Veículos Cadastrados Pré-autorizados</div>
+      <div id="preRegisterList"></div>
+    </section>
+
+    <!-- VIEW 3: PÁTIO ATIVO -->
+    <section id="viewYard" class="view-section">
+      <div class="card-title" style="margin-bottom: 10px;">🅿️ Veículos Presentes no Pátio</div>
+      <div id="activeYardList"></div>
+    </section>
+
+    <!-- VIEW 4: HISTÓRICO & EXPORTAÇÃO -->
+    <section id="viewHistory" class="view-section">
+      <div class="card">
+        <div class="card-title">🔍 Filtrar Histórico</div>
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Buscar por nome ou placa..." oninput="renderHistory()">
+        </div>
+        <button class="btn btn-secondary" onclick="exportCSV()">
+          📥 Exportar Relatório (CSV)
+        </button>
+      </div>
+
+      <div id="historyList"></div>
+    </section>
+  </main>
+
+  <!-- Navigation -->
+  <nav>
+    <button class="nav-btn active" onclick="switchView('viewEntry', this)">
+      <span class="nav-icon">📝</span>
+      <span>Entrada</span>
+    </button>
+    <button class="nav-btn" onclick="switchView('viewPreRegister', this)">
+      <span class="nav-icon">📖</span>
+      <span>Cadastros</span>
+    </button>
+    <button class="nav-btn" onclick="switchView('viewYard', this)">
+      <span class="nav-icon">🚗</span>
+      <span>Pátio</span>
+    </button>
+    <button class="nav-btn" onclick="switchView('viewHistory', this)">
+      <span class="nav-icon">📋</span>
+      <span>Histórico</span>
+    </button>
+  </nav>
+
+  <script>
+    let records = JSON.parse(localStorage.getItem('cmbr_vehicle_records')) || [];
+    let preRegisters = JSON.parse(localStorage.getItem('cmbr_pre_registers')) || [
+      { plate: "CMBR001", name: "Veículo Oficial da Presidência", category: "Oficial" }
+    ];
+
+    const inputPlate = document.getElementById('inputPlate');
+    const inputName = document.getElementById('inputName');
+    const inputCategory = document.getElementById('inputCategory');
+
+    inputPlate.addEventListener('input', function(e) {
+      let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+      if (val.length > 7) val = val.slice(0, 7);
+      e.target.value = val;
+
+      if (val.length >= 3) {
+        let found = preRegisters.find(p => p.plate === val);
+        if (!found) {
+          found = records.find(r => r.plate === val);
+        }
+        if (found) {
+          inputName.value = found.name;
+          inputCategory.value = found.category;
+        }
+      }
+    });
+
+    function updateDatalists() {
+      const nameList = document.getElementById('nameSuggestions');
+      const plateList = document.getElementById('plateSuggestions');
+
+      const allNames = [...new Set([...preRegisters.map(p => p.name), ...records.map(r => r.name)])];
+      const allPlates = [...new Set([...preRegisters.map(p => p.plate), ...records.map(r => r.plate)])];
+
+      nameList.innerHTML = allNames.map(n => `<option value="${n}">`).join('');
+      plateList.innerHTML = allPlates.map(p => `<option value="${p}">`).join('');
+    }
+
+    function handlePreRegister(e) {
+      e.preventDefault();
+      const plate = document.getElementById('prePlate').value.toUpperCase().trim();
+      const name = document.getElementById('preName').value.trim();
+      const category = document.getElementById('preCategory').value;
+
+      if (preRegisters.some(p => p.plate === plate)) {
+        alert('Esta placa já está cadastrada na base prévia!');
+        return;
+      }
+
+      preRegisters.push({ plate, name, category });
+      localStorage.setItem('cmbr_pre_registers', JSON.stringify(preRegisters));
+      
+      document.getElementById('preRegisterForm').reset();
+      alert('Cadastro prévio salvo com sucesso!');
+      renderPreRegisters();
+      updateDatalists();
+    }
+
+    function removePreRegister(plate) {
+      if (confirm(`Deseja remover o cadastro da placa ${plate}?`)) {
+        preRegisters = preRegisters.filter(p => p.plate !== plate);
+        localStorage.setItem('cmbr_pre_registers', JSON.stringify(preRegisters));
+        renderPreRegisters();
+        updateDatalists();
+      }
+    }
+
+    function renderPreRegisters() {
+      const container = document.getElementById('preRegisterList');
+      if (preRegisters.length === 0) {
+        container.innerHTML = `<div class="empty-state"><p>Nenhum cadastro prévio registrado.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = preRegisters.map(p => `
+        <div class="vehicle-item">
+          <div class="vehicle-header">
+            <span class="plate-badge">${p.plate}</span>
+            <span class="category-badge">${p.category}</span>
+          </div>
+          <div class="vehicle-info">
+            <div class="vehicle-name">${p.name}</div>
+          </div>
+          <div class="vehicle-actions">
+            <span>Pré-autorizado</span>
+            <button class="btn btn-danger" onclick="removePreRegister('${p.plate}')">Excluir</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+      const isDark = document.body.classList.contains('dark');
+      document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
+    }
+
+    function switchView(viewId, btn) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(viewId).classList.add('active');
+      btn.classList.add('active');
+
+      renderAll();
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+      
+      const name = inputName.value.trim();
+      const plate = inputPlate.value.trim();
+      const category = inputCategory.value;
+      const obs = document.getElementById('inputObs').value.trim();
+
+      const newRecord = {
+        id: Date.now(),
+        name,
+        plate,
+        category,
+        obs,
+        entryTime: new Date().toISOString(),
+        exitTime: null
+      };
+
+      records.unshift(newRecord);
+      saveData();
+      
+      document.getElementById('entryForm').reset();
+      alert(`Entrada registrada com sucesso!\nPlaca: ${plate}`);
+      renderAll();
+    }
+
+    function handleExit(id) {
+      if (confirm('Confirmar a saída deste veículo?')) {
+        const record = records.find(r => r.id === id);
+        if (record) {
+          record.exitTime = new Date().toISOString();
+          saveData();
+          renderAll();
+        }
+      }
+    }
+
+    function deleteRecord(id) {
+      if (confirm('Tem certeza que deseja excluir este registro do histórico?')) {
+        records = records.filter(r => r.id !== id);
+        saveData();
+        renderAll();
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem('cmbr_vehicle_records', JSON.stringify(records));
+      updateDatalists();
+    }
+
+    function renderYard() {
+      const yardContainer = document.getElementById('activeYardList');
+      const activeRecords = records.filter(r => !r.exitTime);
+
+      if (activeRecords.length === 0) {
+        yardContainer.innerHTML = `<div class="empty-state"><p>Nenhum veículo presente no pátio no momento.</p></div>`;
+        return;
+      }
+
+      yardContainer.innerHTML = activeRecords.map(r => {
+        const entry = new Date(r.entryTime);
+        return `
+          <div class="vehicle-item">
+            <div class="vehicle-header">
+              <span class="plate-badge">${r.plate}</span>
+              <span class="category-badge">${r.category}</span>
+            </div>
+            <div class="vehicle-info">
+              <div class="vehicle-name">${r.name}</div>
+              <div class="vehicle-time">Entrada: ${entry.toLocaleDateString('pt-BR')} às ${entry.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+              ${r.obs ? `<div class="vehicle-obs">Obs: ${r.obs}</div>` : ''}
+            </div>
+            <div class="vehicle-actions">
+              <span class="timer-badge">⏳ Tempo: ${calculateDuration(r.entryTime)}</span>
+              <button class="btn btn-danger" onclick="handleExit(${r.id})">Dar Saída</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderHistory() {
+      const historyContainer = document.getElementById('historyList');
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = records.filter(r => r.name.toLowerCase().includes(query) || r.plate.toLowerCase().includes(query));
+
+      if (filtered.length === 0) {
+        historyContainer.innerHTML = `<div class="empty-state"><p>Nenhum registro encontrado.</p></div>`;
+        return;
+      }
+
+      historyContainer.innerHTML = filtered.map(r => {
+        const entry = new Date(r.entryTime);
+        const exit = r.exitTime ? new Date(r.exitTime) : null;
+        return `
+          <div class="vehicle-item">
+            <div class="vehicle-header">
+              <span class="plate-badge">${r.plate}</span>
+              <span class="category-badge">${r.category}</span>
+            </div>
+            <div class="vehicle-info">
+              <div class="vehicle-name">${r.name}</div>
+              <div class="vehicle-time">📥 Entrada: ${entry.toLocaleDateString('pt-BR')} ${entry.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+              ${exit ? `<div class="vehicle-time">📤 Saída: ${exit.toLocaleDateString('pt-BR')}${exit.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>` : '<div class="vehicle-time" style="color:var(--accent-dark); font-weight:600;">Status: No Pátio</div>'}
+              ${r.obs ? `<div class="vehicle-obs">Obs: ${r.obs}</div>` : ''}
+            </div>
+            <div class="vehicle-actions">
+              <span class="vehicle-time">Reg. ID: ${r.id}</span>
+              <button class="btn btn-danger" onclick="deleteRecord(${r.id})">Excluir Registro</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateStats() {
+      const activeCount = records.filter(r => !r.exitTime).length;
+      const today = new Date().toDateString();
+      const todayEntries = records.filter(r => new Date(r.entryTime).toDateString() === today).length;
+      const todayExits = records.filter(r => r.exitTime && new Date(r.exitTime).toDateString() === today).length;
+
+      document.getElementById('statActive').textContent = activeCount;
+      document.getElementById('statToday').textContent = todayEntries;
+      document.getElementById('statExits').textContent = todayExits;
+    }
+
+    function calculateDuration(entryTime) {
+      const diffMs = new Date() - new Date(entryTime);
+      const diffMins = Math.floor(diffMs / (1000 * 60));
+      const hours = Math.floor(diffMins / 60);
+      const mins = diffMins % 60;
+      return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+    }
+
+    function exportCSV() {
+      if (records.length === 0) {
+        alert('Não há registros para exportar.');
+        return;
+      }
+      let csvContent = "data:text/csv;charset=utf-8,ID,Nome,Placa,Categoria,Data Entrada,Hora Entrada,Data Saida,Hora Saida,Observacoes\n";
+      records.forEach(r => {
+        const entry = new Date(r.entryTime);
+        const exit = r.exitTime ? new Date(r.exitTime) : null;
+        csvContent += `"${r.id}","${r.name}","${r.plate}","${r.category}","${entry.toLocaleDateString('pt-BR')}","${entry.toLocaleTimeString('pt-BR')}","${exit ? exit.toLocaleDateString('pt-BR') : 'No Patio'}","${exit ? exit.toLocaleTimeString('pt-BR') : 'No Patio'}","${r.obs || ''}"\n`;
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `controle_veiculos_cmbr_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function renderAll() {
+      updateStats();
+      renderYard();
+      renderHistory();
+      renderPreRegisters();
+      updateDatalists();
+    }
+
+    setInterval(renderYard, 60000);
+    renderAll();
+  </script>
+</body>
+</html>
